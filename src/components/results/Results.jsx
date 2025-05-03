@@ -4,9 +4,9 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 // Import your GIFs
-import goodBg from './assets/good.gif';
-import moderateBg from './assets/moderate.gif';
-import badBg from './assets/bad.gif';
+import goodBg from '../../assets/good.gif';
+import moderateBg from '../../assets/moderate.gif';
+import badBg from '../../assets/bad.gif';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
