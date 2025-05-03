@@ -1,10 +1,5 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import useTaskStore from '../../stores/useTaskStore';
-import { Howl } from 'howler';
-
-const clickSound = new Howl({ src: ["/sounds/click.mp3"], volume: 0.5 });
-const completeSound = new Howl({ src: ["/sounds/complete.mp3"] });
 
 const QUESTIONS = [
   {
@@ -47,14 +42,12 @@ const QUESTIONS = [
   }
 ];
 
-export default function HabitQuiz({ onComplete }) {
+export default function HabitQuiz({ onComplete, onBack }) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setHabitAnswers } = useTaskStore();
 
   const handleAnswer = (questionId, value) => {
-    clickSound.play();
     setAnswers(prev => ({ ...prev, [questionId]: value }));
     if (QUESTIONS[currentQuestion].type !== "slider" && currentQuestion < QUESTIONS.length - 1) {
       setTimeout(() => setCurrentQuestion(prev => prev + 1), 300);
@@ -71,19 +64,33 @@ export default function HabitQuiz({ onComplete }) {
     setCurrentQuestion(prev => prev - 1);
   };
 
-// In HabitQuiz.jsx
-const handleSubmit = () => {
-  onComplete({
-    procrastination: 'lastmin', // Sample data
-    multitasking: 'often',
-    productivity: 4
-  });
-};
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    
+    // Validate required answers
+    const requiredAnswers = ['procrastination', 'multitasking', 'productivity'];
+    const isValid = requiredAnswers.every(id => answers[id] !== undefined);
+    
+    if (!isValid) {
+      console.error('Missing required answers');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const formattedHabits = {
+      procrastination: QUESTIONS[0].options.find(o => o.value === answers.procrastination)?.id || 'ontime',
+      multitasking: QUESTIONS[1].options.find(o => o.value === answers.multitasking)?.id || 'sometimes',
+      productivity: answers.productivity || 0,
+      caffeine: QUESTIONS[3].options.find(o => o.value === answers.caffeine)?.id || 'none'
+    };
+
+    onComplete(formattedHabits);
+  };
 
   const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
 
   return (
-    <section className="min-h-screen bg-gray-800 text-white py-16">
+    <section className="min-h-screen text-white py-16">
       <div className="container mx-auto px-4 max-w-2xl">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Tell Us About Your Work Habits</h2>

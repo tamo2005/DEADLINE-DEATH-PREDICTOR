@@ -28,11 +28,26 @@ export default function TaskForm({ onTasksSubmit }) {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    onTasksSubmit(tasks.filter(task => task.title && task.deadline));
+    
+    const validTasks = tasks.filter(task => {
+      if (!task.title || !task.deadline || task.hours <= 0) return false;
+      
+      const deadlineDate = new Date(task.deadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return deadlineDate >= today;
+    });
+    
+    if (validTasks.length === 0) {
+      alert('Please add at least one valid task with a future deadline');
+      return;
+    }
+    
+    onTasksSubmit(validTasks);
   };
 
   return (
-    <section id="task-input" className="py-16 bg-gray-800 text-white">
+    <section className="py-16 text-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-8 text-center">Enter Your Impending Doom</h2>
         
@@ -89,7 +104,7 @@ export default function TaskForm({ onTasksSubmit }) {
                       type="number"
                       min="1"
                       value={task.hours}
-                      onChange={(e) => updateTask(index, 'hours', parseInt(e.target.value))}
+                      onChange={(e) => updateTask(index, 'hours', parseInt(e.target.value) || 1)}
                       className="w-full p-3 bg-gray-600 rounded"
                       required
                     />
@@ -104,8 +119,8 @@ export default function TaskForm({ onTasksSubmit }) {
                         key={type.id}
                         type="button"
                         onClick={() => updateTask(index, 'type', type.id)}
-                        className={`flex items-center px-4 py-2 rounded-full ${
-                          task.type === type.id ? 'bg-doom-red' : 'bg-gray-600'
+                        className={`flex items-center px-4 py-2 rounded-full transition-colors ${
+                          task.type === type.id ? 'bg-red-500' : 'bg-gray-600 hover:bg-gray-500'
                         }`}
                       >
                         <span className="mr-2">{type.emoji}</span>
@@ -133,7 +148,7 @@ export default function TaskForm({ onTasksSubmit }) {
               type="submit"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="px-6 py-3 bg-doom-red rounded-lg font-bold"
+              className="px-6 py-3 bg-red-500 rounded-lg font-bold"
             >
               Calculate My Doom
             </motion.button>

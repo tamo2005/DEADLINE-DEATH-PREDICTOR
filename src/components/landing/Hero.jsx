@@ -12,7 +12,7 @@ export default function Hero({ onStart }) {
   });
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <section className="min-h-screen  text-white">
       <div className="container mx-auto px-4 py-20 flex flex-col items-center">
         <motion.div
           initial={{ scale: 0.8 }}
